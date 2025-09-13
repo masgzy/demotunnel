@@ -36,25 +36,15 @@ jobs:
         run: |
           javascript-obfuscator origin.js --output _worker.js \
             --compact true \
-            --control-flow-flattening true \
-            --control-flow-flattening-threshold 0.5 \
+            --control-flow-flattening false \
             --dead-code-injection false \
-            --identifier-names-generator hexadecimal \
-            --rename-globals true \
+            --identifier-names-generator mangled \
+            --rename-globals false \
             --string-array true \
-            --string-array-encoding rc4 \
-            --string-array-indexes-type hexadecimal \
-            --string-array-wrappers-count 1 \
+            --string-array-encoding 'rc4' \
+            --string-array-threshold 1 \
             --transform-object-keys true \
-            --unicode-escape-sequence true \
-            --disable-console-output false \
-            --debug-protection true \
-            --debug-protection-interval false \
-            --self-defending true \
-            --reserved-names '^_,require,exports' \
-            --simplify true \
-            --numbers-to-expressions true             
-        
+            --unicode-escape-sequence true
 
       - name: 提交更改
         uses: stefanzweifel/git-auto-commit-action@v5
