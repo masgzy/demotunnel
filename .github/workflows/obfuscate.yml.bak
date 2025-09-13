@@ -1,4 +1,4 @@
-name: Build and Obfuscate edgetunnel
+name: Build and Obfuscate BPB Panel
 
 on:
   push:
@@ -28,11 +28,11 @@ jobs:
         run: |
           npm install -g javascript-obfuscator
 
-      - name: 下载 edgetunnel worker.js
+      - name: 下载 BPB worker.js
         run: |
           wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
 
-      - name: 混淆 edgetunnel worker.js
+      - name: 混淆 BPB worker.js
         run: |
           javascript-obfuscator origin.js --output _worker.js \
             --compact true \
@@ -50,6 +50,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: main
-          commit_message: ':arrow_up: 更新最新的 edgetunnel'
+          commit_message: ':arrow_up: 更新最新的 BPB 面板'
           commit_author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
           push_options: '--set-upstream'     
