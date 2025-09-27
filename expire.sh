@@ -22,8 +22,8 @@ function 获取UUID过期时间(密钥, 更新时间 = 3, 有效时间 = 7) {\
 \
     function 获取当前周数() {\
         const 现在 = new Date();\
-        const 调整后的现在 = new Date(现在.getTime() + 极时区偏移 * 60 * 60 * 1000);\
-        const 极时间差 = Number(调整后的现在) - Number(起始日期);\
+        const 调整后的现在 = new Date(现在.getTime() + 时区偏移 * 60 * 60 * 1000);\
+        const 时间差 = Number(调整后的现在) - Number(起始日期);\
         return Math.ceil(时间差 / 一周的毫秒数);\
     }\
 \
