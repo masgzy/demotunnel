@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 定义要修改的文件
-WORKER_FILE="_worker.js"
+WORKER_FILE="origin.js"
 
 # 检查文件是否存在
 if [ ! -f "$WORKER_FILE" ]; then
