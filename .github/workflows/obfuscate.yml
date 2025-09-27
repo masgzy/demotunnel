@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    # 每隔五天运行一次（在午夜0:00）
+    # 每隔三天运行一次（在午夜0:00）
     - cron: "0 0 */3 * *"
 
 
@@ -33,10 +33,10 @@ jobs:
         run: |
           wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
           
-      - name: 添加过期时间代码
-        run: |
-          chmod +x expire.sh
-          ./expire.sh
+      #- name: 添加过期时间代码
+      #  run: |
+      #    chmod +x expire.sh
+      #    ./expire.sh
           
       - name: 混淆 edgetunnel worker.js
         run: |

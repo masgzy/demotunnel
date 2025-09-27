@@ -35,7 +35,8 @@ jobs:
           
       - name: 添加过期时间代码
         run: |
-          sh expire.sh
+          chmod +x expire.sh
+          ./expire.sh
           
       - name: 混淆 edgetunnel worker.js
         run: |

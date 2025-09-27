@@ -3,7 +3,7 @@
 # 增强版：更精确的插入方法
 
 # 备份原文件
-cp origin.js origin.js.backup.$(date +%Y%m%d%H%M%S)
+#cp origin.js origin.js.backup.$(date +%Y%m%d%H%M%S)
 
 # 找到config_Json函数的开始行
 config_start_line=$(grep -n "async function config_Json" origin.js | cut -d: -f1)
@@ -79,7 +79,7 @@ sed -i "${uuid_line}a\\
             EXPIRE: '永久有效'," origin.js
 
 echo "✅ 过期时间显示功能已成功添加到 origin.js"
-echo "📁 已创建备份文件: origin.js.backup.*"
+#echo "📁 已创建备份文件: origin.js.backup.*"
 echo "📋 修改详情:"
 echo "   - 动态UUID: EXPIRE 字段已添加到 UPTIME 后面"
 echo "   - 非动态UUID: EXPIRE 字段已添加到 UUID 后面"
