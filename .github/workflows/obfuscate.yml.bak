@@ -6,7 +6,7 @@ on:
       - main
   schedule:
     # 每隔五天运行一次（在午夜0:00）
-    - cron: "0 0 */5 * *"
+    - cron: "0 0 */3 * *"
 
 
 permissions:
@@ -32,7 +32,11 @@ jobs:
       - name: 下载 edgetunnel worker.js
         run: |
           wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
-
+          
+      - name: 添加过期时间代码
+        run: |
+          bash expire.sh
+          
       - name: 混淆 edgetunnel worker.js
         run: |
           javascript-obfuscator origin.js --output _worker.js \
