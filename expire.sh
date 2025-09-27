@@ -1,20 +1,9 @@
 #!/bin/bash
 
-# 更精确的插入方法
+# 在 origin.js 中添加过期时间显示功能
 
-# 备份原文件
-cp origin.js origin.js.backup.$(date +%Y%m%d%H%M%S)
-
-# 找到config_Json函数的开始行
-config_start_line=$(grep -n "async function config_Json" origin.js | cut -d: -f1)
-
-if [ -z "$config_start_line" ]; then
-    echo "错误: 找不到 config_Json 函数"
-    exit 1
-fi
-
-# 在config_Json函数开头添加过期时间计算函数
-sed -i "${config_start_line}a\\
+# 定义要插入的代码
+EXPIRE_FUNCTION='\
 function 获取UUID过期时间(密钥, 更新时间 = 3, 有效时间 = 7) {\
     const 时区偏移 = 8;\
     const 起始日期 = new Date(2007, 6, 7, 更新时间, 0, 0);\
@@ -32,29 +21,25 @@ function 获取UUID过期时间(密钥, 更新时间 = 3, 有效时间 = 7) {\
 \
     function 格式化时间(时间) {\
         const 年 = 时间.getFullYear();\
-        const 月 = (时间.getMonth() + 1).toString().padStart(2, '0');\
-        const 日 = 时间.getDate().toString().padStart(2, '0');\
-        const 时 = 时间.getHours().toString().padStart(2, '0');\
-        const 分 = 时间.getMinutes().toString().padStart(2, '0');\
-        const 秒 = 时间.getSeconds().toString().padStart(2, '0');\
+        const 月 = (时间.getMonth() + 1).toString().padStart(2, '\''0'\'');\
+        const 日 = 时间.getDate().toString().padStart(2, '\''0'\'');\
+        const 时 = 时间.getHours().toString().padStart(2, '\''0'\'');\
+        const 分 = 时间.getMinutes().toString().padStart(2, '\''0'\'');\
+        const 秒 = 时间.getSeconds().toString().padStart(2, '\''0'\'');\
         \
-        return \`\${年}-\${月}-\${日} \${时}:\${分}:\${秒}+08:00\`;\
+        return `\${年}-\${月}-\${日} \${时}:\${分}:\${秒}+08:00`;\
     }\
 \
     return 格式化时间(结束时间);\
-}" origin.js
+}'
 
-# 找到KEY对象中UUIDLow的位置
-uuidlow_line=$(grep -n "UUIDLow: userIDLow || null," origin.js | cut -d: -f1)
+# 在文件开头附近插入函数定义（在第一个函数之前）
+sed -i '/^function [^{]*{/i '"$EXPIRE_FUNCTION"'' origin.js
 
-if [ -z "$uuidlow_line" ]; then
-    echo "错误: 找不到 UUIDLow 字段"
-    exit 1
-fi
+# 在动态UUID配置中添加 EXPIRE 字段（在 UPTIME 后面）
+sed -i '/"UPTIME": [0-9]*,/a\                    "EXPIRE": 获取UUID过期时间(userID, 更新时间, 有效时间),' origin.js
 
-# 在UUIDLow后面添加EXPIRE字段
-sed -i "${uuidlow_line}a\\
-            EXPIRE: (uuid != userID) ? 获取UUID过期时间(userID, 更新时间, 有效时间) : '永久有效'," origin.js
+# 在非动态UUID配置中添加 EXPIRE 字段（在 UUID 后面）
+sed -i '/"UUID": [^,]*,/a\                    "EXPIRE": '\''永久有效'\'',' origin.js
 
-echo "✅ 过期时间显示功能已成功添加到 origin.js"
-echo "📁 已创建备份文件: origin.js.backup.*"
+echo "过期时间显示功能已成功添加到 origin.js"
