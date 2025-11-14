@@ -5,8 +5,9 @@ on:
     branches:
       - main
   schedule:
-    # 每天凌晨1:00运行
-    - cron: "0 1 * * *"
+    # 每隔三天运行一次（在午夜0:00）
+    - cron: "0 0 */3 * *"
+
 
 permissions:
   contents: write
@@ -31,7 +32,12 @@ jobs:
       - name: 下载 edgetunnel worker.js
         run: |
           wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
-
+          
+      - name: 添加过期时间代码
+        run: |
+          chmod +x expire.sh
+          ./expire.sh
+          
       - name: 混淆 edgetunnel worker.js
         run: |
           javascript-obfuscator origin.js --output _worker.js \
@@ -42,7 +48,7 @@ jobs:
             --rename-globals false \
             --string-array true \
             --string-array-encoding 'rc4' \
-            --string-array-threshold 0.75 \
+            --string-array-threshold 1 \
             --transform-object-keys true \
             --unicode-escape-sequence true
 
