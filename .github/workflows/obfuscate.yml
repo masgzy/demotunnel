@@ -31,12 +31,12 @@ jobs:
 
       - name: 下载 edgetunnel worker.js
         run: |
-          wget -O origin.js https://github.com/cmliu/edgetunnel/raw/1.0/_worker.js
+          wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
           
-      - name: 添加过期时间代码
-        run: |
-          chmod +x expire.sh
-          ./expire.sh
+      # - name: 添加过期时间代码
+        # run: |
+          # chmod +x expire.sh
+          # ./expire.sh
           
       - name: 混淆 edgetunnel worker.js
         run: |
@@ -48,7 +48,7 @@ jobs:
             --rename-globals false \
             --string-array true \
             --string-array-encoding 'rc4' \
-            --string-array-threshold 1 \
+            --string-array-threshold 0.85 \
             --transform-object-keys true \
             --unicode-escape-sequence true
 
