@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
@@ -48,7 +48,7 @@ jobs:
             --rename-globals false \
             --string-array true \
             --string-array-encoding 'rc4' \
-            --string-array-threshold 0.85 \
+            --string-array-threshold 0.5 \
             --transform-object-keys true \
             --unicode-escape-sequence true
 
