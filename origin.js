@@ -24,13 +24,14 @@ export default {
         } else 反代IP = (request.cf.colo + '.PrOxYIp.CmLiUsSsS.nEt').toLowerCase();
         const 访问IP = request.headers.get('X-Real-IP') || request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || request.headers.get('True-Client-IP') || request.headers.get('Fly-Client-IP') || request.headers.get('X-Appengine-Remote-Addr') || request.headers.get('X-Forwarded-For') || request.headers.get('X-Real-IP') || request.headers.get('X-Cluster-Client-IP') || request.cf?.clientTcpRtt || '未知IP';
         if (env.GO2SOCKS5) SOCKS5白名单 = await 整理成数组(env.GO2SOCKS5);
+        ECH_DOH = env.ECH_DOH || env.DOH || ECH_DOH;
         if (!upgradeHeader || upgradeHeader !== 'websocket') {
             if (url.protocol === 'http:') return Response.redirect(url.href.replace(`http://${url.hostname}`, `https://${url.hostname}`), 301);
             if (!管理员密码) return fetch(Pages静态页面 + '/noADMIN').then(r => { const headers = new Headers(r.headers); headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); headers.set('Pragma', 'no-cache'); headers.set('Expires', '0'); return new Response(r.body, { status: 404, statusText: r.statusText, headers }); });
             if (env.KV && typeof env.KV.get === 'function') {
                 const 访问路径 = url.pathname.slice(1).toLowerCase();
                 const 区分大小写访问路径 = url.pathname.slice(1);
-                if (访问路径 === 加密秘钥 && 加密秘钥 !== '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改') {//快速订阅
+                if (区分大小写访问路径 === 加密秘钥 && 加密秘钥 !== '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改') {//快速订阅
                     const params = new URLSearchParams(url.search);
                     params.set('token', await MD5MD5(host + userID));
                     return new Response('重定向中...', { status: 302, headers: { 'Location': `/sub?${params.toString()}` } });
@@ -279,7 +280,7 @@ export default {
                                     return new Response('优选订阅生成器异常：' + error.message, { status: 403 });
                                 }
                             }
-                            const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent(ECH_DOH)}` : '';
+                            const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent('cloudflare-ech.com+' + ECH_DOH)}` : '';
                             订阅内容 = 其他节点LINK + 完整优选IP.map(原始地址 => {
                                 // 统一正则: 匹配 域名/IPv4/IPv6地址 + 可选端口 + 可选备注
                                 // 示例: 
@@ -324,7 +325,7 @@ export default {
                             订阅内容 = Singbox订阅配置文件热补丁(订阅内容, config_JSON.UUID, config_JSON.Fingerprint, config_JSON.ECH ? await getECH(host) : null);
                             responseHeaders["content-type"] = 'application/json; charset=utf-8';
                         } else if (订阅类型 === 'clash') {
-                            订阅内容 = Clash订阅配置文件热补丁(订阅内容, config_JSON.UUID, config_JSON.ECH);
+                            订阅内容 = Clash订阅配置文件热补丁(订阅内容, config_JSON.UUID, config_JSON.ECH, config_JSON.HOSTS);
                             responseHeaders["content-type"] = 'application/x-yaml; charset=utf-8';
                         }
                         return new Response(订阅内容, { status: 200, headers: responseHeaders });
@@ -785,10 +786,11 @@ async function httpConnect(targetHost, targetPort, initialData) {
     }
 }
 //////////////////////////////////////////////////功能性函数///////////////////////////////////////////////
-function Clash订阅配置文件热补丁(Clash_原始订阅内容, uuid = null, ECH启用 = false) {
-    if (!ECH启用) return Clash_原始订阅内容;
+function Clash订阅配置文件热补丁(Clash_原始订阅内容, uuid = null, ECH启用 = false, HOSTS = []) {
+    let clash_yaml = Clash_原始订阅内容.replace(/mode:\s*Rule\b/g, 'mode: rule');
 
-    const clash_yaml = `dns:
+    // 基础 DNS 配置块（不含 nameserver-policy）
+    const baseDnsBlock = `dns:
   enable: true
   default-nameserver:
     - 223.5.5.5
@@ -809,12 +811,67 @@ function Clash订阅配置文件热补丁(Clash_原始订阅内容, uuid = null,
       - 240.0.0.0/4
       - 0.0.0.0/32
     geoip-code: CN
-  proxy-server-nameserver:
-    - https://doh.cmliussss.com/CMLiussss
-    - ${ECH_DOH}
-` + Clash_原始订阅内容;
+`;
 
-    if (!uuid) return clash_yaml;
+    // 检查是否存在 dns: 字段（可能在任意行，行首无缩进）
+    const hasDns = /^dns:\s*(?:\n|$)/m.test(clash_yaml);
+
+    // 无论 ECH 是否启用，都确保存在 dns: 配置块
+    if (!hasDns) {
+        clash_yaml = baseDnsBlock + clash_yaml;
+    }
+
+    // 如果 ECH 启用且 HOSTS 有效，添加 nameserver-policy
+    if (ECH启用 && HOSTS.length > 0) {
+        // 生成 HOSTS 的 nameserver-policy 条目
+        const hostsEntries = HOSTS.map(host => `    "${host}":\n      - tls://223.5.5.5\n      - tls://8.8.8.8\n      - https://doh.cmliussss.com/CMLiussss\n      - ${ECH_DOH}`).join('\n');
+
+        // 检查是否存在 nameserver-policy:
+        const hasNameserverPolicy = /^\s{2}nameserver-policy:\s*(?:\n|$)/m.test(clash_yaml);
+
+        if (hasNameserverPolicy) {
+            // 存在 nameserver-policy:，在其后添加 HOSTS 条目
+            clash_yaml = clash_yaml.replace(
+                /^(\s{2}nameserver-policy:\s*\n)/m,
+                `$1${hostsEntries}\n`
+            );
+        } else {
+            // 不存在 nameserver-policy:，需要在 dns: 块内添加整个 nameserver-policy
+            const lines = clash_yaml.split('\n');
+            let dnsBlockEndIndex = -1;
+            let inDnsBlock = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (/^dns:\s*$/.test(line)) {
+                    inDnsBlock = true;
+                    continue;
+                }
+                if (inDnsBlock) {
+                    // 检查是否是新的顶级字段（行首无空格且不是空行且不是注释）
+                    if (/^[a-zA-Z]/.test(line)) {
+                        dnsBlockEndIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // 在 dns 块末尾插入 nameserver-policy
+            const nameserverPolicyBlock = `  nameserver-policy:\n${hostsEntries}`;
+            if (dnsBlockEndIndex !== -1) {
+                lines.splice(dnsBlockEndIndex, 0, nameserverPolicyBlock);
+            } else {
+                // dns: 是最后一个顶级块，在文件末尾添加
+                lines.push(nameserverPolicyBlock);
+            }
+            clash_yaml = lines.join('\n');
+        }
+    }
+
+    // 如果没有 uuid 或 ECH 未启用，直接返回
+    if (!uuid || !ECH启用) return clash_yaml;
+
+    // ECH 启用时，处理代理节点添加 ech-opts
     const lines = clash_yaml.split('\n');
     const processedLines = [];
     let i = 0;
@@ -941,7 +998,8 @@ function Clash订阅配置文件热补丁(Clash_原始订阅内容, uuid = null,
     return processedLines.join('\n');
 }
 
-function Singbox订阅配置文件热补丁(sb_json_text, uuid = null, fingerprint = "chrome", ech_config = null) {
+function Singbox订阅配置文件热补丁(SingBox_原始订阅内容, uuid = null, fingerprint = "chrome", ech_config = null) {
+    const sb_json_text = SingBox_原始订阅内容.replace('1.1.1.1', '8.8.8.8').replace('1.0.0.1', '8.8.4.4');
     try {
         let config = JSON.parse(sb_json_text);
 
@@ -1108,6 +1166,7 @@ function Singbox订阅配置文件热补丁(sb_json_text, uuid = null, fingerpri
                     if (ech_config) {
                         outbound.tls.ech = {
                             enabled: true,
+                            //query_server_name: "cloudflare-ech.com",// 等待 1.13.0+ 版本上线
                             config: `-----BEGIN ECH CONFIGS-----\n${ech_config}\n-----END ECH CONFIGS-----`
                         };
                     }
@@ -1375,7 +1434,7 @@ async function 读取config_JSON(env, hostname, userID, path, 重置配置 = fal
     if (!config_JSON.Fingerprint) config_JSON.Fingerprint = "chrome";
     if (!config_JSON.ECH) config_JSON.ECH = false;
     else config_JSON.优选订阅生成.SUBUpdateTime = 1; // 启用 ECH 时强制将订阅更新时间改为 1 小时
-    const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent(ECH_DOH)}` : '';
+    const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent('cloudflare-ech.com+' + ECH_DOH)}` : '';
     config_JSON.LINK = `${config_JSON.协议类型}://${userID}@${host}:443?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=${host}&fp=${config_JSON.Fingerprint}&sni=${host}&path=${encodeURIComponent(config_JSON.启用0RTT ? config_JSON.PATH + '?ed=2560' : config_JSON.PATH) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(config_JSON.优选订阅生成.SUBNAME)}`;
     config_JSON.优选订阅生成.TOKEN = await MD5MD5(hostname + userID);
 
