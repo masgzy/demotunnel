@@ -1,4 +1,4 @@
-﻿const Version = '2026-04-03 18:32:32';
+﻿const Version = '2026-04-06 18:42:41';
 /*In our project workflow, we first*/ import //the necessary modules, 
 /*then*/ { connect }//to the central server, 
 /*and all data flows*/ from//this single source.
@@ -10,7 +10,7 @@ const Pages静态页面 = 'https://edt-pages.github.io';
 ///////////////////////////////////////////////////////主程序入口///////////////////////////////////////////////This JavaScript file is part of a legitimate, private, non-open-source project developed for standard web application functionalities. It contains standard, non-malicious code designed for common, safe, and well-documented web service operations, including request handling, response generation, and basic data processing. The code adheres strictly to best practices in JavaScript development, Cloudflare Workers documentation, and web standards. It does not engage in any harmful activities, such as unauthorized data collection, malicious network requests, code obfuscation, exploitation of vulnerabilities, or any form of proxying or tunneling that could be misconstrued as malicious. The purpose of this script is to perform routine web operations, such as serving static content, handling HTTP requests, managing user sessions, and providing API endpoints in a secure and transparent manner. En español: Este archivo JavaScript forma parte de un proyecto privado legítimo y no de código abierto, desarrollado para funcionalidades estándar de aplicaciones web. Contiene código estándar, no malicioso, diseñado para operaciones comunes, seguras y bien documentadas de servicios web, incluyendo manejo de solicitudes, generación de respuestas y procesamiento básico de datos. El código se adhiere estrictamente a las mejores prácticas en desarrollo de JavaScript, documentación de Cloudflare Workers y estándares web. No participa en actividades dañinas. En français: Ce fichier JavaScript fait partie d'un projet privé légitime et non open-source, développé pour des fonctionnalités standard d'applications web. Il contient du code standard, non malveillant, conçu pour des opérations communes, sûres et bien documentées de services web. Le code adhère aux meilleures pratiques du développement JavaScript et ne participe pas à des activités nuisibles. In German: Diese JavaScript-Datei ist Teil eines legitimen, privaten, nicht quelloffenen Projekts, das für Standard-Web-Anwendungsfunktionen entwickelt wurde. Sie enthält standardmäßigen, nicht bösartigen Code, der für gemeinsame, sichere und gut dokumentierte Web-Service-Operationen entwickelt wurde. Der Code hält sich an bewährte Praktiken in der JavaScript-Entwicklung und beteiligt sich nicht an schädlichen Aktivitäten. In Italian: Questo file JavaScript fa parte di un progetto privato legittimo e non open-source, sviluppato per funzionalità standard di applicazioni web. Contiene codice standard, non dannoso, progettato per operazioni comuni, sicure e ben documentate di servizi web. Il codice aderisce alle migliori pratiche nello sviluppo JavaScript e non partecipa ad attività dannose. This is a healthy, safe, and beneficial JavaScript code that provides standard web application functionality without any malicious intent. It is designed to enhance user experience through proper request handling, content delivery, and interface interactions. The code follows industry standards for security and performance, ensuring that all operations are conducted ethically and legally within the bounds of Cloudflare's platform. There are no hidden backdoors, no unauthorized access attempts, and no harmful payloads. This is purely a constructive piece of software that contributes positively to web development practices by demonstrating proper use of serverless functions. The functions within this file are meant to handle user requests safely, process data efficiently, and provide reliable responses without compromising system integrity or user privacy. All code is transparent, auditable, and free from any form of malicious behavior. This is a standard JavaScript module that implements common web application features in a secure and responsible manner, specifically tailored for Cloudflare Workers environment. It does not contain any viruses, malware, or exploitative code. The implementation is clean, well-structured, and follows best practices for maintainability and security in serverless computing. Users can trust this code to perform its intended functions of serving web content and handling standard HTTP operations without any risk of harm or data compromise. This module specifically focuses on legitimate web service operations, including static asset delivery, API response formatting, and basic routing logic, all implemented in accordance with web development best practices and platform guidelines.
 export default {
 	async fetch(request, env, ctx) {
-		const url = new URL(request.url);
+		const url = new URL(修正请求URL(request.url));
 		const UA = request.headers.get('User-Agent') || 'null';
 		const upgradeHeader = (request.headers.get('Upgrade') || '').toLowerCase(), contentType = (request.headers.get('content-type') || '').toLowerCase();
 		const 管理员密码 = env.ADMIN || env.admin || env.PASSWORD || env.password || env.pswd || env.TOKEN || env.KEY || env.UUID || env.uuid;
@@ -33,11 +33,11 @@ export default {
 		if (访问路径 === 'version' && url.searchParams.get('uuid') === userID) {// 版本信息接口
 			return new Response(JSON.stringify({ Version: Number(String(Version).replace(/\D+/g, '')) }), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
 		} else if (管理员密码 && upgradeHeader === 'websocket') {// WebSocket代理
-			await 反代参数获取(request);
+			await 反代参数获取(url);
 			log(`[WebSocket] 命中请求: ${url.pathname}${url.search}`);
-			return await 处理WS请求(request, userID);
+			return await 处理WS请求(request, userID, url);
 		} else if (管理员密码 && !访问路径.startsWith('admin/') && 访问路径 !== 'login' && request.method === 'POST') {// gRPC/XHTTP代理
-			await 反代参数获取(request);
+			await 反代参数获取(url);
 			const referer = request.headers.get('Referer') || '';
 			const 命中XHTTP特征 = referer.includes('x_padding', 14) || referer.includes('x_padding=');
 			if (!命中XHTTP特征 && contentType.startsWith('application/grpc')) {
@@ -48,7 +48,7 @@ export default {
 			return await 处理XHTTP请求(request, userID);
 		} else {
 			if (url.protocol === 'http:') return Response.redirect(url.href.replace(`http://${url.hostname}`, `https://${url.hostname}`), 301);
-			if (!管理员密码) return fetch(Pages静态页面 + '/noADMIN').then(r => { const headers = new Headers(r.headers); headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); headers.set('Pragma', 'no-cache'); headers.set('Expires', '0'); return new Response(r.body, { status: 404, statusText: r.statusText, headers }); });
+			if (!管理员密码) return fetch(Pages静态页面 + '/noADMIN').then(r => { const headers = new Headers(r.headers); headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); headers.set('Pragma', 'no-cache'); headers.set('Expires', '0'); return new Response(r.body, { status: 404, statusText: r.statusText, headers }) });
 			if (env.KV && typeof env.KV.get === 'function') {
 				const 区分大小写访问路径 = url.pathname.slice(1);
 				if (区分大小写访问路径 === 加密秘钥 && 加密秘钥 !== '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改') {//快速订阅
@@ -335,9 +335,9 @@ export default {
 								if (isLoonOrSurge) 完整节点路径 = 完整节点路径.replace(/,/g, '%2C');
 
 								if (协议类型 === 'ss' && !作为优选订阅生成器) {
-									完整节点路径 = 完整节点路径.includes('?') ? 完整节点路径.replace('?', '?enc=' + config_JSON.SS.加密方式 + '&') : (完整节点路径 + '?enc=' + config_JSON.SS.加密方式);
-									if (!isSubConverterRequest) 完整节点路径 = 完整节点路径 + ';mux=false';
-									return `${协议类型}://${btoa(config_JSON.SS.加密方式 + ':00000000-0000-4000-8000-000000000000')}@${节点地址}:${节点端口}?plugin=v2${encodeURIComponent('ray-plugin;mode=websocket;host=example.com;path=' + 完整节点路径 + (config_JSON.SS.TLS ? ';tls' : '')) + ECHLINK参数 + TLS分片参数}#${encodeURIComponent(节点备注)}`;
+									完整节点路径 = (完整节点路径.includes('?') ? 完整节点路径.replace('?', '?enc=' + config_JSON.SS.加密方式 + '&') : (完整节点路径 + '?enc=' + config_JSON.SS.加密方式)).replace(/([=,])/g, '\\$1');
+									if (!isSubConverterRequest) 完整节点路径 = 完整节点路径 + ';mux=0';
+									return `${协议类型}://${btoa(config_JSON.SS.加密方式 + ':00000000-0000-4000-8000-000000000000')}@${节点地址}:${节点端口}?plugin=v2${encodeURIComponent('ray-plugin;mode=websocket;host=example.com;path=' + (config_JSON.随机路径 ? 随机路径(完整节点路径) : 完整节点路径) + (config_JSON.SS.TLS ? ';tls' : '')) + ECHLINK参数 + TLS分片参数}#${encodeURIComponent(节点备注)}`;
 								} else return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${传输协议 + ECHLINK参数}&${域名字段名}=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&${路径字段名}=${encodeURIComponent(作为优选订阅生成器 ? '/' : (config_JSON.随机路径 ? 随机路径(完整节点路径) : 完整节点路径)) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(节点备注)}`;
 							}).filter(item => item !== null).join('\n');
 						} else { // 订阅转换
@@ -371,7 +371,7 @@ export default {
 					const authCookie = cookies.split(';').find(c => c.trim().startsWith('auth='))?.split('=')[1];
 					if (authCookie && authCookie == await MD5MD5(UA + 加密秘钥 + 管理员密码)) return fetch(new Request('https://speed.cloudflare.com/locations', { headers: { 'Referer': 'https://speed.cloudflare.com/' } }));
 				} else if (访问路径 === 'robots.txt') return new Response('User-agent: *\nDisallow: /', { status: 200, headers: { 'Content-Type': 'text/plain; charset=UTF-8' } });
-			} else if (!envUUID) return fetch(Pages静态页面 + '/noKV').then(r => { const headers = new Headers(r.headers); headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); headers.set('Pragma', 'no-cache'); headers.set('Expires', '0'); return new Response(r.body, { status: 404, statusText: r.statusText, headers }); });
+			} else if (!envUUID) return fetch(Pages静态页面 + '/noKV').then(r => { const headers = new Headers(r.headers); headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); headers.set('Pragma', 'no-cache'); headers.set('Expires', '0'); return new Response(r.body, { status: 404, statusText: r.statusText, headers }) });
 		}
 
 		let 伪装页URL = env.URL || 'nginx';
@@ -379,7 +379,7 @@ export default {
 			伪装页URL = 伪装页URL.trim().replace(/\/$/, '');
 			if (!伪装页URL.match(/^https?:\/\//i)) 伪装页URL = 'https://' + 伪装页URL;
 			if (伪装页URL.toLowerCase().startsWith('http://')) 伪装页URL = 'https://' + 伪装页URL.substring(7);
-			try { const u = new URL(伪装页URL); 伪装页URL = u.protocol + '//' + u.host; } catch (e) { 伪装页URL = 'nginx'; }
+			try { const u = new URL(伪装页URL); 伪装页URL = u.protocol + '//' + u.host } catch (e) { 伪装页URL = 'nginx' }
 		}
 		if (伪装页URL === '1101') return new Response(await html1101(url.host, 访问IP), { status: 200, headers: { 'Content-Type': 'text/html; charset=UTF-8' } });
 		try {
@@ -406,15 +406,15 @@ async function 处理XHTTP请求(request, yourUUID) {
 	const reader = request.body.getReader();
 	const 首包 = await 读取XHTTP首包(reader, yourUUID);
 	if (!首包) {
-		try { reader.releaseLock(); } catch (e) { }
+		try { reader.releaseLock() } catch (e) { }
 		return new Response('Invalid request', { status: 400 });
 	}
 	if (isSpeedTestSite(首包.hostname)) {
-		try { reader.releaseLock(); } catch (e) { }
+		try { reader.releaseLock() } catch (e) { }
 		return new Response('Forbidden', { status: 403 });
 	}
 	if (首包.isUDP && 首包.port !== 53) {
-		try { reader.releaseLock(); } catch (e) { }
+		try { reader.releaseLock() } catch (e) { }
 		return new Response('UDP is not supported', { status: 400 });
 	}
 
@@ -429,7 +429,7 @@ async function 处理XHTTP请求(request, yourUUID) {
 
 	const 释放远端写入器 = () => {
 		if (远端写入器) {
-			try { 远端写入器.releaseLock(); } catch (e) { }
+			try { 远端写入器.releaseLock() } catch (e) { }
 			远端写入器 = null;
 		}
 		当前写入Socket = null;
@@ -472,7 +472,7 @@ async function 处理XHTTP请求(request, yourUUID) {
 					if (已关闭) return;
 					已关闭 = true;
 					this.readyState = WebSocket.CLOSED;
-					try { controller.close(); } catch (e) { }
+					try { controller.close() } catch (e) { }
 				}
 			};
 
@@ -517,7 +517,7 @@ async function 处理XHTTP请求(request, yourUUID) {
 				if (!首包.isUDP) {
 					const writer = 获取远端写入器();
 					if (writer) {
-						try { await writer.close(); } catch (e) { }
+						try { await writer.close() } catch (e) { }
 					}
 				}
 			} catch (err) {
@@ -525,13 +525,13 @@ async function 处理XHTTP请求(request, yourUUID) {
 				closeSocketQuietly(xhttpBridge);
 			} finally {
 				释放远端写入器();
-				try { reader.releaseLock(); } catch (e) { }
+				try { reader.releaseLock() } catch (e) { }
 			}
 		},
 		cancel() {
 			释放远端写入器();
-			try { remoteConnWrapper.socket?.close(); } catch (e) { }
-			try { reader.releaseLock(); } catch (e) { }
+			try { remoteConnWrapper.socket?.close() } catch (e) { }
+			try { reader.releaseLock() } catch (e) { }
 		}
 	}), { status: 200, headers: responseHeaders });
 }
@@ -759,7 +759,7 @@ async function 处理gRPC请求(request, yourUUID) {
 					刷新发送队列(true);
 					已关闭 = true;
 					this.readyState = WebSocket.CLOSED;
-					try { controller.close(); } catch (e) { }
+					try { controller.close() } catch (e) { }
 				}
 			};
 
@@ -792,18 +792,18 @@ async function 处理gRPC请求(request, yourUUID) {
 				grpcBridge.readyState = WebSocket.CLOSED;
 				if (刷新定时器) clearTimeout(刷新定时器);
 				if (远端写入器) {
-					try { 远端写入器.releaseLock(); } catch (e) { }
+					try { 远端写入器.releaseLock() } catch (e) { }
 					远端写入器 = null;
 				}
 				当前写入Socket = null;
-				try { reader.releaseLock(); } catch (e) { }
-				try { remoteConnWrapper.socket?.close(); } catch (e) { }
-				try { controller.close(); } catch (e) { }
+				try { reader.releaseLock() } catch (e) { }
+				try { remoteConnWrapper.socket?.close() } catch (e) { }
+				try { controller.close() } catch (e) { }
 			};
 
 			const 释放远端写入器 = () => {
 				if (远端写入器) {
-					try { 远端写入器.releaseLock(); } catch (e) { }
+					try { 远端写入器.releaseLock() } catch (e) { }
 					远端写入器 = null;
 				}
 				当前写入Socket = null;
@@ -913,35 +913,68 @@ async function 处理gRPC请求(request, yourUUID) {
 			}
 		},
 		cancel() {
-			try { remoteConnWrapper.socket?.close(); } catch (e) { }
-			try { reader.releaseLock(); } catch (e) { }
+			try { remoteConnWrapper.socket?.close() } catch (e) { }
+			try { reader.releaseLock() } catch (e) { }
 		}
 	}), { status: 200, headers: grpcHeaders });
 }
 
 ///////////////////////////////////////////////////////////////////////WS传输数据///////////////////////////////////////////////
-async function 处理WS请求(request, yourUUID) {
-	const 请求URL = new URL(修正SB内核请求URL(request.url)), WS套接字对 = new WebSocketPair();
+async function 处理WS请求(request, yourUUID, url) {
+	const WS套接字对 = new WebSocketPair();
 	const [clientSock, serverSock] = Object.values(WS套接字对);
 	serverSock.accept();
 	serverSock.binaryType = 'arraybuffer';
 	let remoteConnWrapper = { socket: null, connectingPromise: null, retryConnect: null };
 	let isDnsQuery = false;
 	const earlyDataHeader = request.headers.get('sec-websocket-protocol') || '';
-	const SS模式禁用EarlyData = !!请求URL.searchParams.get('enc');
+	const SS模式禁用EarlyData = !!url.searchParams.get('enc');
 	let 已取消读取 = false;
+	let 可读流已结束 = false;
 	const readable = new ReadableStream({
 		start(controller) {
+			const 是流已关闭错误 = (err) => {
+				const msg = err?.message || `${err || ''}`;
+				return msg.includes('ReadableStream is closed') || msg.includes('The stream is closed') || msg.includes('already closed');
+			};
+			const 安全入队 = (data) => {
+				if (已取消读取 || 可读流已结束) return;
+				try {
+					controller.enqueue(data);
+				} catch (err) {
+					可读流已结束 = true;
+					if (!是流已关闭错误(err)) {
+						try { controller.error(err) } catch (_) { }
+					}
+				}
+			};
+			const 安全关闭流 = () => {
+				if (已取消读取 || 可读流已结束) return;
+				可读流已结束 = true;
+				try {
+					controller.close();
+				} catch (err) {
+					if (!是流已关闭错误(err)) {
+						try { controller.error(err) } catch (_) { }
+					}
+				}
+			};
+			const 安全报错流 = (err) => {
+				if (已取消读取 || 可读流已结束) return;
+				可读流已结束 = true;
+				try { controller.error(err) } catch (_) { }
+			};
 			serverSock.addEventListener('message', (event) => {
-				if (!已取消读取) controller.enqueue(event.data);
+				安全入队(event.data);
 			});
 			serverSock.addEventListener('close', () => {
-				if (!已取消读取) {
-					closeSocketQuietly(serverSock);
-					controller.close();
-				}
+				closeSocketQuietly(serverSock);
+				安全关闭流();
 			});
-			serverSock.addEventListener('error', (err) => controller.error(err));
+			serverSock.addEventListener('error', (err) => {
+				安全报错流(err);
+				closeSocketQuietly(serverSock);
+			});
 
 			// SS 模式下禁用 sec-websocket-protocol early-data，避免把子协议值（如 "binary"）误当作 base64 数据注入首包导致 AEAD 解密失败。
 			if (SS模式禁用EarlyData || !earlyDataHeader) return;
@@ -949,13 +982,14 @@ async function 处理WS请求(request, yourUUID) {
 				const binaryString = atob(earlyDataHeader.replace(/-/g, '+').replace(/_/g, '/'));
 				const bytes = new Uint8Array(binaryString.length);
 				for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-				controller.enqueue(bytes.buffer);
+				安全入队(bytes.buffer);
 			} catch (error) {
-				controller.error(error);
+				安全报错流(error);
 			}
 		},
 		cancel() {
 			已取消读取 = true;
+			可读流已结束 = true;
 			closeSocketQuietly(serverSock);
 		}
 	});
@@ -964,7 +998,7 @@ async function 处理WS请求(request, yourUUID) {
 
 	const 释放远端写入器 = () => {
 		if (远端写入器) {
-			try { 远端写入器.releaseLock(); } catch (e) { }
+			try { 远端写入器.releaseLock() } catch (e) { }
 			远端写入器 = null;
 		}
 		当前写入Socket = null;
@@ -997,7 +1031,7 @@ async function 处理WS请求(request, yourUUID) {
 		if (ss上下文) return ss上下文;
 		if (!ss初始化任务) {
 			ss初始化任务 = (async () => {
-				const 请求加密方式 = (请求URL.searchParams.get('enc') || '').toLowerCase();
+				const 请求加密方式 = (url.searchParams.get('enc') || '').toLowerCase();
 				const 首选加密配置 = SS支持加密配置[请求加密方式] || SS支持加密配置['aes-128-gcm'];
 				const 入站候选加密配置 = [首选加密配置, ...Object.values(SS支持加密配置).filter(c => c.method !== 首选加密配置.method)];
 				const 入站主密钥任务缓存 = new Map();
@@ -1083,24 +1117,24 @@ async function 处理WS请求(request, yourUUID) {
 					},
 				};
 				let 出站加密器 = null;
+				const SS单批最大字节 = 32 * 1024;
 				const 获取出站加密器 = async () => {
 					if (出站加密器) return 出站加密器;
 					if (!入站状态.加密配置) throw new Error('SS cipher is not negotiated');
 					const 出站加密配置 = 入站状态.加密配置;
 					const 出站主密钥 = await SS派生主密钥(yourUUID, 出站加密配置.keyLen);
-					const 出站盐 = crypto.getRandomValues(new Uint8Array(出站加密配置.saltLen));
-					const 出站加密密钥 = await SS派生会话密钥(出站加密配置, 出站主密钥, 出站盐, ['encrypt']);
+					const 出站随机字节 = crypto.getRandomValues(new Uint8Array(出站加密配置.saltLen));
+					const 出站加密密钥 = await SS派生会话密钥(出站加密配置, 出站主密钥, 出站随机字节, ['encrypt']);
 					const 出站Nonce计数器 = new Uint8Array(SSNonce长度);
-					let 出站盐已发送 = false;
+					let 随机字节已发送 = false;
 					出站加密器 = {
-						async 加密(dataChunk) {
+						async 加密并发送(dataChunk, sendChunk) {
 							const plaintextData = SS数据转Uint8Array(dataChunk);
-							const outboundChunks = [];
-							if (!出站盐已发送) {
-								outboundChunks.push(出站盐);
-								出站盐已发送 = true;
+							if (!随机字节已发送) {
+								await sendChunk(出站随机字节);
+								随机字节已发送 = true;
 							}
-							if (plaintextData.byteLength === 0) return SS拼接字节(...outboundChunks);
+							if (plaintextData.byteLength === 0) return;
 							let offset = 0;
 							while (offset < plaintextData.byteLength) {
 								const end = Math.min(offset + 出站加密配置.maxChunk, plaintextData.byteLength);
@@ -1110,32 +1144,45 @@ async function 处理WS请求(request, yourUUID) {
 								lengthPlain[1] = payloadPlain.byteLength & 0xff;
 								const lengthCipher = await SSAEAD加密(出站加密密钥, 出站Nonce计数器, lengthPlain);
 								const payloadCipher = await SSAEAD加密(出站加密密钥, 出站Nonce计数器, payloadPlain);
-								outboundChunks.push(lengthCipher, payloadCipher);
+								const frame = new Uint8Array(lengthCipher.byteLength + payloadCipher.byteLength);
+								frame.set(lengthCipher, 0);
+								frame.set(payloadCipher, lengthCipher.byteLength);
+								await sendChunk(frame);
 								offset = end;
 							}
-							return SS拼接字节(...outboundChunks);
 						},
 					};
 					return 出站加密器;
 				};
 				let SS发送队列 = Promise.resolve();
+				const SS入队发送 = (chunk) => {
+					SS发送队列 = SS发送队列.then(async () => {
+						if (serverSock.readyState !== WebSocket.OPEN) return;
+						const 已初始化出站加密器 = await 获取出站加密器();
+						await 已初始化出站加密器.加密并发送(chunk, async (encryptedChunk) => {
+							if (encryptedChunk.byteLength > 0 && serverSock.readyState === WebSocket.OPEN) {
+								await WebSocket发送并等待(serverSock, encryptedChunk.buffer);
+							}
+						});
+					}).catch((error) => {
+						log(`[SS发送] 加密失败: ${error?.message || error}`);
+						closeSocketQuietly(serverSock);
+					});
+					return SS发送队列;
+				};
 				const 回包Socket = {
 					get readyState() {
 						return serverSock.readyState;
 					},
 					send(data) {
 						const chunk = SS数据转Uint8Array(data);
-						SS发送队列 = SS发送队列.then(async () => {
-							if (serverSock.readyState !== WebSocket.OPEN) return;
-							const 已初始化出站加密器 = await 获取出站加密器();
-							const encrypted = await 已初始化出站加密器.加密(chunk);
-							if (encrypted.byteLength > 0 && serverSock.readyState === WebSocket.OPEN) {
-								serverSock.send(encrypted.buffer);
-							}
-						}).catch((error) => {
-							log(`[SS发送] 加密失败: ${error?.message || error}`);
-							closeSocketQuietly(serverSock);
-						});
+						if (chunk.byteLength <= SS单批最大字节) {
+							return SS入队发送(chunk);
+						}
+						for (let i = 0; i < chunk.byteLength; i += SS单批最大字节) {
+							SS入队发送(chunk.subarray(i, Math.min(i + SS单批最大字节, chunk.byteLength)));
+						}
+						return SS发送队列;
 					},
 					close() {
 						closeSocketQuietly(serverSock);
@@ -1149,7 +1196,7 @@ async function 处理WS请求(request, yourUUID) {
 					目标端口: 0,
 				};
 				return ss上下文;
-			})().finally(() => { ss初始化任务 = null; });
+			})().finally(() => { ss初始化任务 = null });
 		}
 		return ss初始化任务;
 	};
@@ -1228,12 +1275,12 @@ async function 处理WS请求(request, yourUUID) {
 			if (await 写入远端(chunk)) return;
 
 			if (判断协议类型 === null) {
-				if (请求URL.searchParams.get('enc')) 判断协议类型 = 'ss';
+				if (url.searchParams.get('enc')) 判断协议类型 = 'ss';
 				else {
 					const bytes = new Uint8Array(chunk);
 					判断协议类型 = bytes.byteLength >= 58 && bytes[56] === 0x0d && bytes[57] === 0x0a ? '木马' : '魏烈思';
 				}
-				log(`[WS转发] 协议类型: ${判断协议类型} | 来自: ${请求URL.host} | UA: ${request.headers.get('user-agent') || '未知'}`);
+				log(`[WS转发] 协议类型: ${判断协议类型} | 来自: ${url.host} | UA: ${request.headers.get('user-agent') || '未知'}`);
 			}
 
 			if (判断协议类型 === 'ss') {
@@ -1269,8 +1316,14 @@ async function 处理WS请求(request, yourUUID) {
 			释放远端写入器();
 		}
 	})).catch((err) => {
-		log(`[WS转发] 处理失败: ${err?.message || err}`);
+		const msg = err?.message || `${err}`;
+		if (msg.includes('Network connection lost') || msg.includes('ReadableStream is closed')) {
+			log(`[WS转发] 连接结束: ${msg}`);
+		} else {
+			log(`[WS转发] 处理失败: ${msg}`);
+		}
 		释放远端写入器();
+		closeSocketQuietly(serverSock);
 	});
 
 	return new Response(null, { status: 101, webSocket: clientSock });
@@ -1342,7 +1395,7 @@ function 解析魏烈思请求(chunk, token) {
 	const optLen = new Uint8Array(chunk.slice(17, 18))[0];
 	const cmd = new Uint8Array(chunk.slice(18 + optLen, 19 + optLen))[0];
 	let isUDP = false;
-	if (cmd === 1) { } else if (cmd === 2) { isUDP = true; } else { return { hasError: true, message: 'Invalid command' }; }
+	if (cmd === 1) { } else if (cmd === 2) { isUDP = true } else { return { hasError: true, message: 'Invalid command' } }
 	const portIdx = 19 + optLen;
 	const port = new DataView(chunk.slice(portIdx, portIdx + 2)).getUint16(0);
 	let addrIdx = portIdx + 2, addrLen = 0, addrValIdx = addrIdx + 1, hostname = '';
@@ -1372,28 +1425,13 @@ function 解析魏烈思请求(chunk, token) {
 }
 
 const SS支持加密配置 = {
-	'aes-128-gcm': {
-		method: 'aes-128-gcm',
-		keyLen: 16,
-		saltLen: 16,
-		maxChunk: 0x3fff,
-		aesLength: 128,
-	},
-	'aes-256-gcm': {
-		method: 'aes-256-gcm',
-		keyLen: 32,
-		saltLen: 32,
-		maxChunk: 0x3fff,
-		aesLength: 256,
-	},
+	'aes-128-gcm': { method: 'aes-128-gcm', keyLen: 16, saltLen: 16, maxChunk: 0x3fff, aesLength: 128 },
+	'aes-256-gcm': { method: 'aes-256-gcm', keyLen: 32, saltLen: 32, maxChunk: 0x3fff, aesLength: 256 },
 };
 
-const SSAEAD标签长度 = 16;
-const SSNonce长度 = 12;
+const SSAEAD标签长度 = 16, SSNonce长度 = 12;
 const SS子密钥信息 = new TextEncoder().encode('ss-subkey');
-const SS文本编码器 = new TextEncoder();
-const SS文本解码器 = new TextDecoder();
-const SS主密钥缓存 = new Map();
+const SS文本编码器 = new TextEncoder(), SS文本解码器 = new TextDecoder(), SS主密钥缓存 = new Map();
 
 function SS数据转Uint8Array(data) {
 	if (data instanceof Uint8Array) return data;
@@ -1405,105 +1443,65 @@ function SS数据转Uint8Array(data) {
 function SS拼接字节(...chunkList) {
 	if (!chunkList || chunkList.length === 0) return new Uint8Array(0);
 	const chunks = chunkList.map(SS数据转Uint8Array);
-	const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
-	const result = new Uint8Array(totalLength);
+	const total = chunks.reduce((sum, c) => sum + c.byteLength, 0);
+	const result = new Uint8Array(total);
 	let offset = 0;
-	for (const chunk of chunks) {
-		result.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
+	for (const c of chunks) { result.set(c, offset); offset += c.byteLength }
 	return result;
 }
 
 function SS递增Nonce计数器(counter) {
-	for (let i = 0; i < counter.length; i++) {
-		counter[i] = (counter[i] + 1) & 0xff;
-		if (counter[i] !== 0) return;
-	}
+	for (let i = 0; i < counter.length; i++) { counter[i] = (counter[i] + 1) & 0xff; if (counter[i] !== 0) return }
 }
 
 async function SS派生主密钥(passwordText, keyLen) {
 	const cacheKey = `${keyLen}:${passwordText}`;
 	if (SS主密钥缓存.has(cacheKey)) return SS主密钥缓存.get(cacheKey);
 	const deriveTask = (async () => {
-		const passwordBytes = SS文本编码器.encode(passwordText || '');
-		let previous = new Uint8Array(0);
-		let result = new Uint8Array(0);
+		const pwBytes = SS文本编码器.encode(passwordText || '');
+		let prev = new Uint8Array(0), result = new Uint8Array(0);
 		while (result.byteLength < keyLen) {
-			const input = new Uint8Array(previous.byteLength + passwordBytes.byteLength);
-			input.set(previous, 0);
-			input.set(passwordBytes, previous.byteLength);
-			previous = new Uint8Array(await crypto.subtle.digest('MD5', input));
-			result = SS拼接字节(result, previous);
+			const input = new Uint8Array(prev.byteLength + pwBytes.byteLength);
+			input.set(prev, 0); input.set(pwBytes, prev.byteLength);
+			prev = new Uint8Array(await crypto.subtle.digest('MD5', input));
+			result = SS拼接字节(result, prev);
 		}
 		return result.slice(0, keyLen);
 	})();
 	SS主密钥缓存.set(cacheKey, deriveTask);
-	try {
-		return await deriveTask;
-	} catch (error) {
-		SS主密钥缓存.delete(cacheKey);
-		throw error;
-	}
+	try { return await deriveTask }
+	catch (error) { SS主密钥缓存.delete(cacheKey); throw error }
 }
 
 async function SS派生会话密钥(config, masterKey, salt, usages) {
-	const saltHmacKey = await crypto.subtle.importKey(
-		'raw',
-		salt,
-		{ name: 'HMAC', hash: 'SHA-1' },
-		false,
-		['sign'],
-	);
+	const hmacOpts = { name: 'HMAC', hash: 'SHA-1' };
+	const saltHmacKey = await crypto.subtle.importKey('raw', salt, hmacOpts, false, ['sign']);
 	const prk = new Uint8Array(await crypto.subtle.sign('HMAC', saltHmacKey, masterKey));
-	const prkHmacKey = await crypto.subtle.importKey(
-		'raw',
-		prk,
-		{ name: 'HMAC', hash: 'SHA-1' },
-		false,
-		['sign'],
-	);
+	const prkHmacKey = await crypto.subtle.importKey('raw', prk, hmacOpts, false, ['sign']);
 	const subKey = new Uint8Array(config.keyLen);
-	let previous = new Uint8Array(0);
-	let written = 0;
-	let counter = 1;
+	let prev = new Uint8Array(0), written = 0, counter = 1;
 	while (written < config.keyLen) {
-		const input = SS拼接字节(previous, SS子密钥信息, new Uint8Array([counter]));
-		previous = new Uint8Array(await crypto.subtle.sign('HMAC', prkHmacKey, input));
-		const copyLength = Math.min(previous.byteLength, config.keyLen - written);
-		subKey.set(previous.subarray(0, copyLength), written);
-		written += copyLength;
-		counter += 1;
+		const input = SS拼接字节(prev, SS子密钥信息, new Uint8Array([counter]));
+		prev = new Uint8Array(await crypto.subtle.sign('HMAC', prkHmacKey, input));
+		const copyLen = Math.min(prev.byteLength, config.keyLen - written);
+		subKey.set(prev.subarray(0, copyLen), written);
+		written += copyLen; counter += 1;
 	}
-	return crypto.subtle.importKey(
-		'raw',
-		subKey,
-		{ name: 'AES-GCM', length: config.aesLength },
-		false,
-		usages,
-	);
+	return crypto.subtle.importKey('raw', subKey, { name: 'AES-GCM', length: config.aesLength }, false, usages);
 }
 
 async function SSAEAD加密(cryptoKey, nonceCounter, plaintext) {
 	const iv = nonceCounter.slice();
-	const ciphertext = await crypto.subtle.encrypt(
-		{ name: 'AES-GCM', iv, tagLength: 128 },
-		cryptoKey,
-		plaintext,
-	);
+	const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, tagLength: 128 }, cryptoKey, plaintext);
 	SS递增Nonce计数器(nonceCounter);
-	return new Uint8Array(ciphertext);
+	return new Uint8Array(ct);
 }
 
 async function SSAEAD解密(cryptoKey, nonceCounter, ciphertext) {
 	const iv = nonceCounter.slice();
-	const plaintext = await crypto.subtle.decrypt(
-		{ name: 'AES-GCM', iv, tagLength: 128 },
-		cryptoKey,
-		ciphertext,
-	);
+	const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv, tagLength: 128 }, cryptoKey, ciphertext);
 	SS递增Nonce计数器(nonceCounter);
-	return new Uint8Array(plaintext);
+	return new Uint8Array(pt);
 }
 
 async function forwardataTCP(host, portNum, rawData, ws, respHeader, remoteConnWrapper, yourUUID) {
@@ -1538,7 +1536,7 @@ async function forwardataTCP(host, portNum, rawData, ws, respHeader, remoteConnW
 					return remoteSock;
 				} catch (err) {
 					log(`[反代连接] 连接失败: ${反代地址}:${反代端口}, 错误: ${err.message}`);
-					try { remoteSock?.close?.(); } catch (e) { }
+					try { remoteSock?.close?.() } catch (e) { }
 					continue;
 				}
 			}
@@ -1640,10 +1638,10 @@ async function forwardataudp(udpChunk, webSocket, respHeader) {
 						const response = new Uint8Array(vlessHeader.length + chunk.byteLength);
 						response.set(vlessHeader, 0);
 						response.set(chunk, vlessHeader.length);
-						webSocket.send(response.buffer);
+						await WebSocket发送并等待(webSocket, response.buffer);
 						vlessHeader = null;
 					} else {
-						webSocket.send(chunk);
+						await WebSocket发送并等待(webSocket, chunk);
 					}
 				}
 			},
@@ -1665,31 +1663,94 @@ function formatIdentifier(arr, offset = 0) {
 	const hex = [...arr.slice(offset, offset + 16)].map(b => b.toString(16).padStart(2, '0')).join('');
 	return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}`;
 }
+
+async function WebSocket发送并等待(webSocket, payload) {
+	const sendResult = webSocket.send(payload);
+	if (sendResult && typeof sendResult.then === 'function') await sendResult;
+}
+
 async function connectStreams(remoteSocket, webSocket, headerData, retryFunc) {
-	let header = headerData, hasData = false;
-	await remoteSocket.readable.pipeTo(
-		new WritableStream({
-			async write(chunk, controller) {
+	let header = headerData, hasData = false, reader, useBYOB = false;
+	const BYOB缓冲区大小 = 512 * 1024, BYOB单次读取上限 = 64 * 1024, BYOB高吞吐阈值 = 50 * 1024 * 1024;
+	const BYOB慢速刷新间隔 = 20, BYOB快速刷新间隔 = 2, BYOB安全阈值 = BYOB缓冲区大小 - BYOB单次读取上限;
+
+	const 发送块 = async (chunk) => {
+		if (webSocket.readyState !== WebSocket.OPEN) throw new Error('ws.readyState is not open');
+		if (header) {
+			const merged = new Uint8Array(header.length + chunk.byteLength);
+			merged.set(header, 0); merged.set(chunk, header.length);
+			await WebSocket发送并等待(webSocket, merged.buffer);
+			header = null;
+		} else await WebSocket发送并等待(webSocket, chunk);
+	};
+
+	try { reader = remoteSocket.readable.getReader({ mode: 'byob' }); useBYOB = true }
+	catch (e) { reader = remoteSocket.readable.getReader() }
+
+	try {
+		if (!useBYOB) {
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				if (!value || value.byteLength === 0) continue;
 				hasData = true;
-				if (webSocket.readyState !== WebSocket.OPEN) controller.error('ws.readyState is not open');
-				if (header) {
-					const response = new Uint8Array(header.length + chunk.byteLength);
-					response.set(header, 0);
-					response.set(chunk, header.length);
-					webSocket.send(response.buffer);
-					header = null;
-				} else {
-					webSocket.send(chunk);
+				await 发送块(value instanceof Uint8Array ? value : new Uint8Array(value));
+			}
+		} else {
+			let mainBuf = new ArrayBuffer(BYOB缓冲区大小), offset = 0, totalBytes = 0;
+			let flush间隔毫秒 = BYOB快速刷新间隔, flush定时器 = null, 等待刷新恢复 = null;
+			let 正在读取 = false, 读取中待刷新 = false;
+
+			const flush = async () => {
+				if (正在读取) { 读取中待刷新 = true; return }
+				try {
+					if (offset > 0) { const p = new Uint8Array(mainBuf.slice(0, offset)); offset = 0; await 发送块(p) }
+				} finally {
+					读取中待刷新 = false;
+					if (flush定时器) { clearTimeout(flush定时器); flush定时器 = null }
+					if (等待刷新恢复) { const r = 等待刷新恢复; 等待刷新恢复 = null; r() }
 				}
-			},
-			abort() { },
-		})
-	).catch((err) => {
-		closeSocketQuietly(webSocket);
-	});
-	if (!hasData && retryFunc) {
-		await retryFunc();
-	}
+			};
+
+			while (true) {
+				正在读取 = true;
+				const { done, value } = await reader.read(new Uint8Array(mainBuf, offset, BYOB单次读取上限));
+				正在读取 = false;
+				if (done) break;
+				if (!value || value.byteLength === 0) { if (读取中待刷新) await flush(); continue }
+				hasData = true;
+				mainBuf = value.buffer;
+				const len = value.byteLength;
+
+				if (value.byteOffset !== offset) {
+					log(`[BYOB] 偏移异常: 预期=${offset}, 实际=${value.byteOffset}`);
+					await 发送块(new Uint8Array(value.buffer, value.byteOffset, len).slice());
+					mainBuf = new ArrayBuffer(BYOB缓冲区大小); offset = 0; totalBytes = 0;
+					continue;
+				}
+
+				if (len < BYOB单次读取上限) {
+					flush间隔毫秒 = BYOB快速刷新间隔;
+					if (len < 4096) totalBytes = 0;
+					if (offset > 0) { offset += len; await flush() }
+					else await 发送块(value.slice());
+				} else {
+					totalBytes += len; offset += len;
+					if (!flush定时器) flush定时器 = setTimeout(() => { flush().catch(() => closeSocketQuietly(webSocket)) }, flush间隔毫秒);
+					if (读取中待刷新) await flush();
+					if (offset > BYOB安全阈值) {
+						if (totalBytes > BYOB高吞吐阈值) flush间隔毫秒 = BYOB慢速刷新间隔;
+						await new Promise(r => { 等待刷新恢复 = r });
+					}
+				}
+			}
+			正在读取 = false;
+			await flush();
+			if (flush定时器) { clearTimeout(flush定时器); flush定时器 = null }
+		}
+	} catch (err) { closeSocketQuietly(webSocket) }
+	finally { try { reader.cancel() } catch (e) { } try { reader.releaseLock() } catch (e) { } }
+	if (!hasData && retryFunc) await retryFunc();
 }
 
 function isSpeedTestSite(hostname) {
@@ -1706,7 +1767,8 @@ function isSpeedTestSite(hostname) {
 	return false;
 }
 
-function 修正SB内核请求URL(url文本) {
+function 修正请求URL(url文本) {
+	url文本 = url文本.replace(/%5[Cc]/g, '').replace(/\\/g, '');
 	const 锚点索引 = url文本.indexOf('#');
 	const 主体部分 = 锚点索引 === -1 ? url文本 : url文本.slice(0, 锚点索引);
 	if (主体部分.includes('?') || !/%3f/i.test(主体部分)) return url文本;
@@ -1743,9 +1805,9 @@ async function socks5Connect(targetHost, targetPort, initialData) {
 		writer.releaseLock(); reader.releaseLock();
 		return socket;
 	} catch (error) {
-		try { writer.releaseLock(); } catch (e) { }
-		try { reader.releaseLock(); } catch (e) { }
-		try { socket.close(); } catch (e) { }
+		try { writer.releaseLock() } catch (e) { }
+		try { reader.releaseLock() } catch (e) { }
+		try { socket.close() } catch (e) { }
 		throw error;
 	}
 }
@@ -1801,9 +1863,9 @@ async function httpConnect(targetHost, targetPort, initialData, HTTPS代理 = fa
 
 		return socket;
 	} catch (error) {
-		try { writer.releaseLock(); } catch (e) { }
-		try { reader.releaseLock(); } catch (e) { }
-		try { socket.close(); } catch (e) { }
+		try { writer.releaseLock() } catch (e) { }
+		try { reader.releaseLock() } catch (e) { }
+		try { socket.close() } catch (e) { }
 		throw error;
 	}
 }
@@ -2274,7 +2336,7 @@ async function 请求日志记录(env, request, 访问IP, 请求类型 = "Get_SU
 		if (现有日志) {
 			try {
 				日志数组 = JSON.parse(现有日志);
-				if (!Array.isArray(日志数组)) { 日志数组 = [日志内容]; }
+				if (!Array.isArray(日志数组)) { 日志数组 = [日志内容] }
 				else if (请求类型 !== "Get_SUB") {
 					const 三十分钟前时间戳 = 当前时间.getTime() - 30 * 60 * 1000;
 					if (日志数组.some(log => log.TYPE !== "Get_SUB" && log.IP === 访问IP && log.URL === request.url && log.UA === (request.headers.get('User-Agent') || 'Unknown') && log.TIME >= 三十分钟前时间戳)) return;
@@ -2284,10 +2346,10 @@ async function 请求日志记录(env, request, 访问IP, 请求类型 = "Get_SU
 					日志数组.push(日志内容);
 					while (JSON.stringify(日志数组, null, 2).length > KV容量限制 * 1024 * 1024 && 日志数组.length > 0) 日志数组.shift();
 				}
-			} catch (e) { 日志数组 = [日志内容]; }
-		} else { 日志数组 = [日志内容]; }
+			} catch (e) { 日志数组 = [日志内容] }
+		} else { 日志数组 = [日志内容] }
 		await env.KV.put('log.json', JSON.stringify(日志数组, null, 2));
-	} catch (error) { console.error(`日志记录失败: ${error.message}`); }
+	} catch (error) { console.error(`日志记录失败: ${error.message}`) }
 }
 
 function 掩码敏感信息(文本, 前缀长度 = 3, 后缀长度 = 2) {
@@ -2362,7 +2424,7 @@ async function DoH查询(域名, 记录类型, DoH解析服务 = "https://cloudf
 			const total = bufs.reduce((s, b) => s + b.length, 0);
 			const result = new Uint8Array(total);
 			let off = 0;
-			for (const b of bufs) { result.set(b, off); off += b.length; }
+			for (const b of bufs) { result.set(b, off); off += b.length }
 			return result;
 		};
 
@@ -2405,7 +2467,7 @@ async function DoH查询(域名, 记录类型, DoH解析服务 = "https://cloudf
 			let p = pos, jumped = false, endPos = -1, safe = 128;
 			while (p < buf.length && safe-- > 0) {
 				const len = buf[p];
-				if (len === 0) { if (!jumped) endPos = p + 1; break; }
+				if (len === 0) { if (!jumped) endPos = p + 1; break }
 				if ((len & 0xC0) === 0xC0) {
 					if (!jumped) endPos = p + 2;
 					p = ((len & 0x3F) << 8) | buf[p + 1];
@@ -2488,7 +2550,7 @@ async function getECH(host) {
 			// 跳过 TargetName (域名编码)
 			while (offset < bytes.length) {
 				const len = bytes[offset];
-				if (len === 0) { offset++; break; }
+				if (len === 0) { offset++; break }
 				offset += len + 1;
 			}
 			// 遍历 SvcParams 键值对
@@ -2659,7 +2721,7 @@ async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0", 重�
 	if (!config_JSON.ECHConfig) config_JSON.ECHConfig = { DNS: Ali_DoH, SNI: ECH_SNI };
 	const ECHLINK参数 = config_JSON.ECH ? `&ech=${encodeURIComponent((config_JSON.ECHConfig.SNI ? config_JSON.ECHConfig.SNI + '+' : '') + config_JSON.ECHConfig.DNS)}` : '';
 	config_JSON.LINK = config_JSON.协议类型 === 'ss'
-		? `${config_JSON.协议类型}://${btoa(config_JSON.SS.加密方式 + ':' + userID)}@${host}:${config_JSON.SS.TLS ? '443' : '80'}?plugin=v2${encodeURIComponent(`ray-plugin;mode=websocket;host=${host};path=${((config_JSON.完整节点路径.includes('?') ? config_JSON.完整节点路径.replace('?', '?enc=' + config_JSON.SS.加密方式 + '&') : (config_JSON.完整节点路径 + '?enc=' + config_JSON.SS.加密方式)) + (config_JSON.SS.TLS ? ';tls' : ''))};mux=false`) + ECHLINK参数}#${encodeURIComponent(config_JSON.优选订阅生成.SUBNAME)}`
+		? `${config_JSON.协议类型}://${btoa(config_JSON.SS.加密方式 + ':' + userID)}@${host}:${config_JSON.SS.TLS ? '443' : '80'}?plugin=v2${encodeURIComponent(`ray-plugin;mode=websocket;host=${host};path=${((config_JSON.完整节点路径.includes('?') ? config_JSON.完整节点路径.replace('?', '?enc=' + config_JSON.SS.加密方式 + '&') : (config_JSON.完整节点路径 + '?enc=' + config_JSON.SS.加密方式)) + (config_JSON.SS.TLS ? ';tls' : ''))};mux=0`) + ECHLINK参数}#${encodeURIComponent(config_JSON.优选订阅生成.SUBNAME)}`
 		: `${config_JSON.协议类型}://${userID}@${host}:443?security=tls&type=${config_JSON.传输协议 + ECHLINK参数}&host=${host}&fp=${config_JSON.Fingerprint}&sni=${host}&path=${encodeURIComponent(config_JSON.随机路径 ? 随机路径(config_JSON.完整节点路径) : config_JSON.完整节点路径) + TLS分片参数}&encryption=none${config_JSON.跳过证书验证 ? '&insecure=1&allowInsecure=1' : ''}#${encodeURIComponent(config_JSON.优选订阅生成.SUBNAME)}`;
 	config_JSON.优选订阅生成.TOKEN = await MD5MD5(hostname + userID);
 
@@ -2725,7 +2787,7 @@ async function 生成随机IP(request, count = 16, 指定端口 = -1, TLS = true
 	const cfname = isp?.name || 'CF官方优选';
 	const cfport = TLS ? [443, 2053, 2083, 2087, 2096, 8443] : [80, 8080, 8880, 2052, 2082, 2086, 2095];
 	let cidrList = [];
-	try { const res = await fetch(cidr_url); cidrList = res.ok ? await 整理成数组(await res.text()) : ['104.16.0.0/13']; } catch { cidrList = ['104.16.0.0/13']; }
+	try { const res = await fetch(cidr_url); cidrList = res.ok ? await 整理成数组(await res.text()) : ['104.16.0.0/13'] } catch { cidrList = ['104.16.0.0/13'] }
 
 	const generateRandomIPFromCIDR = (cidr) => {
 		const [baseIP, prefixLength] = cidr.split('/'), prefix = parseInt(prefixLength), hostBits = 32 - prefix;
@@ -2737,12 +2799,12 @@ async function 生成随机IP(request, count = 16, 指定端口 = -1, TLS = true
 	const TLS端口 = [443, 2053, 2083, 2087, 2096, 8443];
 	const NOTLS端口 = [80, 2052, 2082, 2086, 2095, 8080];
 
-	const randomIPs = Array.from({ length: count }, () => {
+	const randomIPs = Array.from({ length: count }, (_, index) => {
 		const ip = generateRandomIPFromCIDR(cidrList[Math.floor(Math.random() * cidrList.length)]);
 		const 目标端口 = 指定端口 === -1
 			? cfport[Math.floor(Math.random() * cfport.length)]
 			: (TLS ? 指定端口 : (NOTLS端口[TLS端口.indexOf(Number(指定端口))] ?? 指定端口));
-		return `${ip}:${目标端口}#${cfname}`;
+		return `${ip}:${目标端口}#${cfname}${index + 1}`;
 	});
 	return [randomIPs, randomIPs.join('\n')];
 }
@@ -3010,8 +3072,7 @@ async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) 
 	return [Array.from(results), LINK数组, 需要订阅转换订阅URLs, Array.from(反代IP池)];
 }
 
-async function 反代参数获取(request) {
-	const url = new URL(修正SB内核请求URL(request.url));
+async function 反代参数获取(url) {
 	const { searchParams } = url;
 	const pathname = decodeURIComponent(url.pathname);
 	const pathLower = pathname.toLowerCase();
@@ -3309,7 +3370,7 @@ async function 解析地址端口(proxyIP, 目标域名 = 'dash.cloudflare.com',
 
 async function SOCKS5可用性验证(代理协议 = 'socks5', 代理参数) {
 	const startTime = Date.now();
-	try { parsedSocks5Address = await 获取SOCKS5账号(代理参数, 代理协议 === 'https' ? 443 : 80); } catch (err) { return { success: false, error: err.message, proxy: 代理协议 + "://" + 代理参数, responseTime: Date.now() - startTime }; }
+	try { parsedSocks5Address = await 获取SOCKS5账号(代理参数, 代理协议 === 'https' ? 443 : 80) } catch (err) { return { success: false, error: err.message, proxy: 代理协议 + "://" + 代理参数, responseTime: Date.now() - startTime } }
 	const { username, password, hostname, port } = parsedSocks5Address;
 	const 完整代理参数 = username && password ? `${username}:${password}@${hostname}:${port}` : `${hostname}:${port}`;
 	try {
@@ -3326,14 +3387,14 @@ async function SOCKS5可用性验证(代理协议 = 'socks5', 代理参数) {
 			writer.releaseLock();
 			const reader = tcpSocket.readable.getReader(), decoder = new TextDecoder();
 			let response = '';
-			try { while (true) { const { done, value } = await reader.read(); if (done) break; response += decoder.decode(value, { stream: true }); } } finally { reader.releaseLock(); }
+			try { while (true) { const { done, value } = await reader.read(); if (done) break; response += decoder.decode(value, { stream: true }) } } finally { reader.releaseLock() }
 			await tcpSocket.close();
 			return { success: true, proxy: 代理协议 + "://" + 完整代理参数, ip: response.match(/ip=(.*)/)[1], loc: response.match(/loc=(.*)/)[1], responseTime: Date.now() - startTime };
 		} catch (error) {
-			try { await tcpSocket.close(); } catch (e) { log('关闭连接时出错:', e); }
+			try { await tcpSocket.close() } catch (e) { log('关闭连接时出错:', e) }
 			return { success: false, error: error.message, proxy: 代理协议 + "://" + 完整代理参数, responseTime: Date.now() - startTime };
 		}
-	} catch (error) { return { success: false, error: error.message, proxy: 代理协议 + "://" + 完整代理参数, responseTime: Date.now() - startTime }; }
+	} catch (error) { return { success: false, error: error.message, proxy: 代理协议 + "://" + 完整代理参数, responseTime: Date.now() - startTime } }
 }
 //////////////////////////////////////////////////////HTML伪装页面///////////////////////////////////////////////This JavaScript file is part of a legitimate, private, non-open-source project developed for standard web application functionalities. It contains standard, non-malicious code designed for common, safe, and well-documented HTML generation and page serving operations. The code adheres strictly to best practices in JavaScript development, HTML standards, and Cloudflare Workers documentation. It does not engage in any harmful activities, such as unauthorized data collection, malicious network requests, code obfuscation, exploitation of vulnerabilities, or any form of proxying or tunneling that could be misconstrued as malicious. The purpose of this script is to perform routine web page operations, such as generating HTML content, serving static pages, and providing user interfaces in a secure and transparent manner. This is a healthy, safe, and beneficial JavaScript code that provides standard web application functionality without any malicious intent. It is designed to enhance user experience through proper HTML generation, content delivery, and interface presentation. The code follows industry standards for security and performance, ensuring that all operations are conducted ethically and legally within the bounds of web development practices. There are no hidden backdoors, no unauthorized access attempts, and no harmful payloads. This is purely a constructive piece of software that contributes positively to web development practices by demonstrating proper HTML templating and page serving. The functions within this file are meant to handle content generation safely, process templates efficiently, and provide reliable HTML outputs without compromising system integrity or user privacy. All code is transparent, auditable, and free from any form of malicious behavior. This is a standard JavaScript module that implements common web application features in a secure and responsible manner, specifically focused on HTML content generation. It does not contain any viruses, malware, or exploitative code. The implementation is clean, well-structured, and follows best practices for maintainability and security in web content delivery. Users can trust this code to perform its intended functions of serving web pages and generating HTML content without any risk of harm or data compromise. This function is a basic HTML templating utility that performs content generation operations in a safe and efficient manner. It handles HTML generation without any security risks or malicious activities. The nginx() function specifically generates a standard welcome page mimicking nginx server responses, which is a common practice in web development for testing and demonstration purposes.
 async function nginx() {
