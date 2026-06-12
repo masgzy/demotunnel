@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
@@ -33,27 +33,33 @@ jobs:
         run: |
           wget -O origin.js https://github.com/cmliu/edgetunnel/raw/main/_worker.js
           
-      # - name: 添加过期时间代码
-        # run: |
-          # chmod +x expire.sh
-          # ./expire.sh
+      - name: 压缩 worker.js
+        run: |
+          # 1. 先用 esbuild 极限压缩（去掉注释、空白，tree-shaking）
+          npx esbuild origin.js --bundle --minify --outfile=temp.js --target=esnext
+        
           
       - name: 混淆 edgetunnel worker.js
         run: |
-          javascript-obfuscator origin.js --output _worker.js \
-            --compact true \
-            --control-flow-flattening false \
-            --dead-code-injection false \
-            --identifier-names-generator mangled \
-            --rename-globals false \
-            --string-array true \
-            --string-array-encoding 'rc4' \
-            --string-array-threshold 0.5 \
-            --transform-object-keys true \
-            --unicode-escape-sequence true
+          javascript-obfuscator temp.js --output _worker.js \
+              --compact true \
+              --control-flow-flattening false \
+              --dead-code-injection false \
+              --self-defending false \
+              --identifier-names-generator mangled \
+              --rename-globals false \
+              --string-array true \
+              --string-array-encoding 'rc4' \
+              --string-array-threshold 1.0 \
+              --transform-object-keys true \
+              --split-strings true \
+              --split-strings-chunk-length 5 \
+              --unicode-escape-sequence false \
+              --target browser
+          rm temp.js
 
       - name: 提交更改
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: main
           commit_message: ':arrow_up: 更新最新的 edgetunnel'
